@@ -320,10 +320,11 @@ int main( int argc, char **argv) {
      float tempOutAC;
      float tempOutBC;
      int c;
+     int csv;
      struct tm *local;
      time_t t;
 
-     while ((c = getopt (argc, argv, "mfcvhl::a:")) != -1)
+     while ((c = getopt (argc, argv, "mfcvhl::a:C")) != -1)
      switch (c)
        {
        case 'v':
@@ -337,6 +338,9 @@ int main( int argc, char **argv) {
          break;
        case 'm':
          mrtg=1;
+         break;
+       case 'C':
+         csv=1;
          break;
        case 'l':
          if (optarg!=NULL){
@@ -428,6 +432,12 @@ int main( int argc, char **argv) {
                           local->tm_min);
 
               printf("pcsensor\n");
+           } else if(csv) {
+             if(formato==2) {
+                  printf("%.2f,%.2f,%.2f", (9.0 / 5.0 * tempInC + 32.0), (9.0 / 5.0 * tempOutAC + 32.0), (9.0 / 5.0 * tempOutBC + 32.0));
+             } else {
+                  printf("%.2f,%.2f,%.2f", tempInC, tempOutAC, tempOutBC);
+             }
            } else {
               printf("%04d/%02d/%02d %02d:%02d:%02d\n",
                           local->tm_year +1900,
