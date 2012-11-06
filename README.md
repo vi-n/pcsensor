@@ -3,10 +3,10 @@ pcsensor
 
 PCSensor / TEMPer2 driver for linux
 
-This is based on PCSensor v. 1.0.1 by Juan Carlos Perez
+I based this on the improvements made by Peter Farsinsen, who improved the code of
+Juan Carlos Perez
 
-All I've done is tweak the tool to output both the temperature from the internal
-as well as the external sensor.
+I've made it recognize two external temperature probes.
 
 /*
  * pcsensor.c by Juan Carlos Perez (c) 2011 (cray@isp-sl.com)
