@@ -250,7 +250,7 @@ void interrupt_read(usb_dev_handle *dev) {
     }
 }
 
-void interrupt_read_temperatura(usb_dev_handle *dev, float *tempInC, float *tempOutC) {
+void interrupt_read_temperatura(usb_dev_handle *dev, float *tempInC, float *tempOutAC, float *tempOutBC) {
 
     int r,i, temperature;
     unsigned char answer[reqIntLen];
@@ -275,8 +275,11 @@ void interrupt_read_temperatura(usb_dev_handle *dev, float *tempInC, float *temp
 
     temperature = (answer[5] & 0xFF) + ((signed char)answer[4] << 8);
     temperature += calibration;
-    *tempOutC = temperature * (125.0 / 32000.0);
+    *tempOutAC = temperature * (125.0 / 32000.0);
 
+    temperature = (answer[7] & 0xFF) + ((signed char)answer[6] << 8);
+    temperature += calibration;
+    *tempOutBC = temperature * (125.0 / 32000.0);
 }
 
 void bulk_transfer(usb_dev_handle *dev) {
@@ -314,7 +317,8 @@ int main( int argc, char **argv) {
 
      usb_dev_handle *lvr_winusb = NULL;
      float tempInC;
-     float tempOutC;
+     float tempOutAC;
+     float tempOutBC;
      int c;
      struct tm *local;
      time_t t;
@@ -405,7 +409,7 @@ int main( int argc, char **argv) {
 
      do {
            control_transfer(lvr_winusb, uTemperatura );
-           interrupt_read_temperatura(lvr_winusb, &tempInC, &tempOutC);
+           interrupt_read_temperatura(lvr_winusb, &tempInC, &tempOutAC, &tempOutBC);
 
            t = time(NULL);
            local = localtime(&t);
@@ -435,13 +439,16 @@ int main( int argc, char **argv) {
 
               if (formato==2) {
                   printf("Temperature (internal) %.2fF\n", (9.0 / 5.0 * tempInC + 32.0));
-                  printf("Temperature (external) %.2fF\n", (9.0 / 5.0 * tempOutC + 32.0));
+                  printf("Temperature (external A) %.2fF\n", (9.0 / 5.0 * tempOutAC + 32.0));
+                  printf("Temperature (external B) %.2fF\n", (9.0 / 5.0 * tempOutBC + 32.0));
               } else if (formato==1) {
                   printf("Temperature (internal) %.2fC\n", tempInC);
-                  printf("Temperature (external) %.2fC\n", tempOutC);
+                  printf("Temperature (external A) %.2fC\n", tempOutAC);
+                  printf("Temperature (external B) %.2fC\n", tempOutBC);
               } else {
                   printf("Temperature (internal) %.2fF %.2fC\n", (9.0 / 5.0 * tempInC + 32.0), tempInC);
-                  printf("Temperature (external) %.2fF %.2fC\n", (9.0 / 5.0 * tempOutC + 32.0), tempOutC);
+                  printf("Temperature (external A) %.2fF %.2fC\n", (9.0 / 5.0 * tempOutAC + 32.0), tempOutAC);
+                  printf("Temperature (external B) %.2fF %.2fC\n", (9.0 / 5.0 * tempOutBC + 32.0), tempOutBC);
               }
            }
 
